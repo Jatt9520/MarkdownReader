@@ -5,12 +5,17 @@ from markdown.extensions.codehilite import CodeHiliteExtension
 from markdown.extensions.fenced_code import FencedCodeExtension
 from markdown.extensions.tables import TableExtension
 from markdown.extensions.toc import TocExtension
-from pygments.formatters import HtmlFormatter
 
 from markdownreader.settings import Settings
 
-formatter = HtmlFormatter(nowrap=True, cssclass="highlight")
-PYGMENTS_CSS = formatter.get_style_defs(".highlight")
+PYGMENTS_CSS = ""
+
+try:
+    from pygments.formatters import HtmlFormatter
+    formatter = HtmlFormatter(nowrap=True, cssclass="highlight")
+    PYGMENTS_CSS = formatter.get_style_defs(".highlight")
+except ImportError:
+    pass
 
 
 def build_markdown_converter(code_highlight: bool = True) -> markdown.Markdown:

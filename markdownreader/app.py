@@ -1,7 +1,12 @@
 """QApplication bootstrap and global configuration."""
 
+import os
 import sys
 from pathlib import Path
+
+# QtWebEngine GPU workarounds — prevent flash-crash on incompatible GPUs
+os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu"
+os.environ["QTWEBENGINE_DISABLE_GPU"] = "1"
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
