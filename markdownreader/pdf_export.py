@@ -1,22 +1,18 @@
-"""PDF export functionality."""
+"""PDF export via QPrinter."""
 
 from pathlib import Path
 
-from PyQt5.QtCore import QUrl, QMarginsF
-from PyQt5.QtGui import QPageLayout, QPageSize
+from PyQt5.QtPrintSupport import QPrinter
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 
-def export_to_pdf(web_view, parent=None) -> bool:
-    """Export the web view contents to a PDF file.
+def export_to_pdf(text_browser, parent=None) -> bool:
+    """Export text browser contents to PDF."""
 
-    Returns True if export was successful, False if cancelled or failed.
-    """
-    default_name = "document.pdf"
     path, _ = QFileDialog.getSaveFileName(
         parent,
         "Export to PDF",
-        default_name,
+        "document.pdf",
         "PDF Files (*.pdf);;All Files (*)",
     )
     if not path:
@@ -27,21 +23,16 @@ def export_to_pdf(web_view, parent=None) -> bool:
         output = output.with_suffix(".pdf")
 
     try:
-        # Configure PDF layout
-        layout = QPageLayout()
-        layout.setPageSize(QPageSize(QPageSize.A4))
-        layout.setOrientation(QPageLayout.Portrait)
-        layout.setMargins(QMarginsF(15, 15, 15, 15))
+        printer = QPrinter(QPrinter.HighResolution)
+        printer.setOutputFormat(QPrinter.PdfFormat)
+        printer.setOutputFileName(str(output))
+        printer.setPageSize(QPrinter.A4)
+        text_browser.document().print_(printer)
 
-        # Use QWebEngineView's printToPdf
-        page = web_view.page()
-        page.printToPdf(str(output), layout)
-
-        # Show success message
         QMessageBox.information(
             parent,
             "Export Complete",
-            f"PDF exported successfully to:\n{output}",
+            f"PDF exported to:\n{output}",
         )
         return True
 
@@ -49,6 +40,6 @@ def export_to_pdf(web_view, parent=None) -> bool:
         QMessageBox.critical(
             parent,
             "Export Failed",
-            f"Failed to export PDF:\n{str(e)}",
+            f"Failed to export PDF:\n{e}",
         )
         return False

@@ -1,12 +1,7 @@
 """QApplication bootstrap and global configuration."""
 
-import os
 import sys
 from pathlib import Path
-
-# QtWebEngine crash workarounds
-os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--no-sandbox --disable-gpu --single-process"
-os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication

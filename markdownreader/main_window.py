@@ -3,7 +3,7 @@
 import sys
 from pathlib import Path
 
-from PyQt5.QtCore import Qt, QTimer, QUrl, pyqtSlot
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence, QDragEnterEvent, QDropEvent, QIcon
 from PyQt5.QtWidgets import (
     QMainWindow, QSplitter, QAction, QMenuBar, QStatusBar,
@@ -383,7 +383,7 @@ class MainWindow(QMainWindow):
 
     def _export_pdf(self):
         if self._preview.get_html():
-            export_to_pdf(self._preview._web_view, self)
+            export_to_pdf(self._preview._text_browser, self)
         else:
             QMessageBox.information(self, "Export", "No content to export. Open a Markdown file first.")
 

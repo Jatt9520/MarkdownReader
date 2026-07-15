@@ -7,13 +7,6 @@ a = Analysis(
     binaries=[],
     datas=[],
     hiddenimports=[
-        'PyQt5.sip',
-        'PyQt5.QtWebEngineWidgets',
-        'PyQt5.QtWebEngineCore',
-        'PyQt5.QtWebEngine',
-        'PyQt5.QtNetwork',
-        'PyQt5.QtQuick',
-        'PyQt5.QtQml',
         'markdown',
         'markdown.extensions.codehilite',
         'markdown.extensions.fenced_code',

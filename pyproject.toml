@@ -12,7 +12,6 @@ requires-python = ">=3.10"
 authors = [{ name = "MiMoCode" }]
 dependencies = [
     "PyQt5>=5.15",
-    "PyQtWebEngine>=5.15",
     "Pygments>=2.17",
     "markdown>=3.5",
 ]

@@ -85,7 +85,7 @@ hr {{ border: none; border-top: 1px solid #21262d; margin: 2em 0; }}
 
 
 def render_with_theme(text: str, theme: str, settings: Settings, code_highlight: bool = True) -> str:
-    """Render markdown with the specified theme applied."""
+    """Render markdown with the specified theme (QTextBrowser compatible)."""
     converter = build_markdown_converter(code_highlight)
     converter.reset()
     body_html = converter.convert(text)
@@ -100,6 +100,7 @@ def render_with_theme(text: str, theme: str, settings: Settings, code_highlight:
         code_bg = "#161b22"
         border = "#21262d"
         muted = "#8b949e"
+        blockquote_bg = "#1c2635"
     else:
         bg = "#ffffff"
         fg = "#1f2328"
@@ -108,6 +109,7 @@ def render_with_theme(text: str, theme: str, settings: Settings, code_highlight:
         code_bg = "#f6f8fa"
         border = "#d0d7de"
         muted = "#656d76"
+        blockquote_bg = "#f0f6fc"
 
     # Code highlight CSS (only if pygments is active)
     code_css = PYGMENTS_CSS if code_highlight else ""
@@ -116,49 +118,35 @@ def render_with_theme(text: str, theme: str, settings: Settings, code_highlight:
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 {code_css}
-<style id="theme-style">
-* {{ box-sizing: border-box; }}
+<style>
 body {{
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", Helvetica, Arial, sans-serif;
+    font-family: "Segoe UI", "Noto Sans SC", Helvetica, Arial, sans-serif;
     line-height: 1.75;
     padding: 32px 48px;
     margin: 0;
     font-size: {font_size}px;
     color: {fg};
     background: {bg};
-    max-width: 100%;
 }}
-h1, h2, h3, h4, h5, h6 {{ color: {heading}; margin-top: 1.6em; margin-bottom: 0.6em; font-weight: 600; letter-spacing: -0.01em; }}
+h1, h2, h3, h4, h5, h6 {{ color: {heading}; margin-top: 1.6em; margin-bottom: 0.6em; font-weight: 600; }}
 h1 {{ font-size: 2em; border-bottom: 1px solid {border}; padding-bottom: 0.4em; }}
 h2 {{ font-size: 1.5em; border-bottom: 1px solid {border}; padding-bottom: 0.3em; }}
 h3 {{ font-size: 1.25em; }}
-a {{ color: {link}; text-decoration: none; transition: color 0.15s; }}
-a:hover {{ text-decoration: underline; }}
-code {{ background: {code_bg}; padding: 0.2em 0.45em; border-radius: 5px; font-size: 88%; font-family: "Cascadia Code", "Fira Code", "JetBrains Mono", Consolas, monospace; }}
-pre {{ background: {code_bg}; padding: 18px 20px; border-radius: 8px; overflow-x: auto; line-height: 1.5; border: 1px solid {border}; }}
+a {{ color: {link}; text-decoration: none; }}
+code {{ background: {code_bg}; padding: 0.2em 0.45em; font-size: 88%; font-family: "Cascadia Code", "Fira Code", "JetBrains Mono", Consolas, monospace; }}
+pre {{ background: {code_bg}; padding: 18px 20px; line-height: 1.5; border: 1px solid {border}; }}
 pre code {{ background: transparent; padding: 0; font-size: 92%; border: none; }}
-blockquote {{ border-left: 4px solid {link}; color: {muted}; margin: 1em 0; padding: 0.5em 1.2em; background: {"rgba(56,139,253,0.06)" if theme == "dark" else "rgba(9,105,218,0.04)"}; border-radius: 0 6px 6px 0; }}
-table {{ border-collapse: collapse; width: 100%; margin: 1.2em 0; border-radius: 6px; overflow: hidden; border: 1px solid {border}; }}
+blockquote {{ border-left: 4px solid {link}; color: {muted}; margin: 1em 0; padding: 0.5em 1.2em; background: {blockquote_bg}; }}
+table {{ border-collapse: collapse; width: 100%; margin: 1.2em 0; border: 1px solid {border}; }}
 th, td {{ border: 1px solid {border}; padding: 10px 14px; text-align: left; }}
 th {{ background: {code_bg}; font-weight: 600; }}
-tr:hover td {{ background: {"rgba(56,139,253,0.05)" if theme == "dark" else "rgba(9,105,218,0.03)"}; }}
-img {{ max-width: 100%; border-radius: 6px; }}
+img {{ max-width: 100%; }}
 hr {{ border: none; border-top: 1px solid {border}; margin: 2.5em 0; }}
 ul, ol {{ padding-left: 1.8em; }}
 li {{ margin: 0.3em 0; }}
-.highlight {{ background: {code_bg}; border-radius: 8px; padding: 18px 20px; overflow-x: auto; border: 1px solid {border}; margin: 1em 0; }}
+.highlight {{ background: {code_bg}; padding: 18px 20px; border: 1px solid {border}; margin: 1em 0; }}
 .highlight pre {{ background: transparent; margin: 0; padding: 0; border: none; }}
-
-/* Scrollbar styling */
-::-webkit-scrollbar {{ width: 8px; height: 8px; }}
-::-webkit-scrollbar-track {{ background: transparent; }}
-::-webkit-scrollbar-thumb {{ background: {border}; border-radius: 4px; }}
-::-webkit-scrollbar-thumb:hover {{ background: {muted}; }}
-
-/* Task lists */
-input[type="checkbox"] {{ margin-right: 0.5em; }}
 </style>
 </head>
 <body>
