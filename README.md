@@ -83,7 +83,7 @@ pyinstaller MarkdownReader.spec
 ```bash
 pip install build
 python -m build
-pip install dist/markdownreader-0.2.1-py3-none-any.whl
+pip install dist/markdownreader-1.0.0-py3-none-any.whl
 ```
 
 ## Project Structure

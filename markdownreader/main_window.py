@@ -543,7 +543,7 @@ class MainWindow(QMainWindow):
             "<li>拖拽打开文件</li>"
             "<li>键盘快捷键</li>"
             "</ul>"
-            "<p>版本 0.2.1</p>"
+            "<p>版本 1.0.0</p>"
         )
         msg.setStandardButtons(QMessageBox.Ok)
         if self._settings.theme == "dark":

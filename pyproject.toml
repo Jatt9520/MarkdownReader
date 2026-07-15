@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "markdownreader"
-version = "0.2.1"
+version = "1.0.0"
 description = "A modern Markdown reader with live preview, dark/light themes, and PDF export"
 readme = "README.md"
 license = "MIT"
