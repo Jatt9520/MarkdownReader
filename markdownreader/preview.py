@@ -30,7 +30,7 @@ class MarkdownPreview(QWidget):
         layout.addWidget(self._text_browser)
 
         # Placeholder when no file is open
-        self._placeholder = QLabel("Open a Markdown file to preview\n(Ctrl+O)")
+        self._placeholder = QLabel("打开 Markdown 文件以预览\n(Ctrl+O)")
         self._placeholder.setAlignment(Qt.AlignCenter)
         self._placeholder.setStyleSheet("color: #8b949e; font-size: 16px;")
         self._placeholder.hide()

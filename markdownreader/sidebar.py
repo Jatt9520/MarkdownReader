@@ -34,7 +34,7 @@ class Sidebar(QWidget):
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(8, 6, 8, 6)
 
-        self._title = QLabel("Files")
+        self._title = QLabel("文件")
         self._title.setStyleSheet("font-weight: bold; font-size: 12px; color: #8b949e;")
         header_layout.addWidget(self._title)
 

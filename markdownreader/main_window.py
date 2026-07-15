@@ -157,63 +157,62 @@ class MainWindow(QMainWindow):
             }
         """)
 
-        # File menu
-        file_menu = menubar.addMenu("&File")
+        # 文件菜单
+        file_menu = menubar.addMenu("文件(&F)")
 
-        self._action_new = QAction("&New", self)
+        self._action_new = QAction("新建(&N)", self)
         self._action_new.setShortcut(SHORTCUTS["new_file"])
         self._action_new.triggered.connect(self._new_file)
         file_menu.addAction(self._action_new)
 
-        self._action_open = QAction("&Open...", self)
+        self._action_open = QAction("打开(&O)...", self)
         self._action_open.setShortcut(SHORTCUTS["open_file"])
         self._action_open.triggered.connect(self._open_file_dialog)
         file_menu.addAction(self._action_open)
 
-        # Recent files submenu
-        self._recent_menu = file_menu.addMenu("Recent Files")
+        self._recent_menu = file_menu.addMenu("最近打开")
         self._update_recent_menu()
 
         file_menu.addSeparator()
 
-        self._action_save = QAction("&Save", self)
+        self._action_save = QAction("保存(&S)", self)
         self._action_save.setShortcut(SHORTCUTS["save_file"])
         self._action_save.triggered.connect(self._save_file)
         file_menu.addAction(self._action_save)
 
-        self._action_save_as = QAction("Save &As...", self)
+        self._action_save_as = QAction("另存为(&A)...", self)
         self._action_save_as.setShortcut(SHORTCUTS["save_as"])
         self._action_save_as.triggered.connect(self._save_file_as)
         file_menu.addAction(self._action_save_as)
 
         file_menu.addSeparator()
 
-        self._action_export_pdf = QAction("Export to &PDF...", self)
+        self._action_export_pdf = QAction("导出PDF(&P)...", self)
         self._action_export_pdf.setShortcut(SHORTCUTS["export_pdf"])
         self._action_export_pdf.triggered.connect(self._export_pdf)
         file_menu.addAction(self._action_export_pdf)
 
         file_menu.addSeparator()
 
-        self._action_quit = QAction("&Quit", self)
+        self._action_quit = QAction("退出(&Q)", self)
         self._action_quit.setShortcut(SHORTCUTS["quit"])
         self._action_quit.triggered.connect(self.close)
         file_menu.addAction(self._action_quit)
 
-        # View menu
-        view_menu = menubar.addMenu("&View")
+        # 视图菜单
+        view_menu = menubar.addMenu("视图(&V)")
 
-        self._action_toggle_sidebar = QAction("Toggle &Sidebar", self)
+        self._action_toggle_sidebar = QAction("切换侧边栏(&S)", self)
         self._action_toggle_sidebar.setShortcut(SHORTCUTS["toggle_sidebar"])
         self._action_toggle_sidebar.triggered.connect(self._toggle_sidebar)
         view_menu.addAction(self._action_toggle_sidebar)
 
-        self._action_toggle_theme = QAction("Toggle &Theme", self)
+        self._action_toggle_theme = QAction("切换主题(&T)", self)
         self._action_toggle_theme.setShortcut(SHORTCUTS["toggle_theme"])
         self._action_toggle_theme.triggered.connect(self._toggle_theme)
         view_menu.addAction(self._action_toggle_theme)
 
-        self._action_toggle_highlight = QAction("Toggle Code &Highlighting", self)
+        self._action_toggle_highlight = QAction("切换代码高亮(&H)", self)
         self._action_toggle_highlight.setCheckable(True)
         self._action_toggle_highlight.setChecked(self._settings.code_highlight_enabled)
         self._action_toggle_highlight.setShortcut(SHORTCUTS["toggle_highlight"])
@@ -222,54 +221,54 @@ class MainWindow(QMainWindow):
 
         view_menu.addSeparator()
 
-        action_zoom_in = QAction("Zoom &In", self)
+        action_zoom_in = QAction("放大(&I)", self)
         action_zoom_in.setShortcut(SHORTCUTS["zoom_in"])
         action_zoom_in.triggered.connect(self._zoom_in)
         view_menu.addAction(action_zoom_in)
 
-        action_zoom_out = QAction("Zoom &Out", self)
+        action_zoom_out = QAction("缩小(&O)", self)
         action_zoom_out.setShortcut(SHORTCUTS["zoom_out"])
         action_zoom_out.triggered.connect(self._zoom_out)
         view_menu.addAction(action_zoom_out)
 
-        action_zoom_reset = QAction("&Reset Zoom", self)
+        action_zoom_reset = QAction("重置缩放(&R)", self)
         action_zoom_reset.setShortcut(SHORTCUTS["zoom_reset"])
         action_zoom_reset.triggered.connect(self._zoom_reset)
         view_menu.addAction(action_zoom_reset)
 
         view_menu.addSeparator()
 
-        action_focus_editor = QAction("Focus &Editor", self)
+        action_focus_editor = QAction("聚焦编辑器(&E)", self)
         action_focus_editor.setShortcut(SHORTCUTS["focus_editor"])
         action_focus_editor.triggered.connect(self._editor.setFocus)
         view_menu.addAction(action_focus_editor)
 
-        action_focus_preview = QAction("Focus Pre&view", self)
+        action_focus_preview = QAction("聚焦预览(&P)", self)
         action_focus_preview.setShortcut(SHORTCUTS["focus_preview"])
         action_focus_preview.triggered.connect(lambda: self._preview.setFocus())
         view_menu.addAction(action_focus_preview)
 
-        # Edit menu
-        edit_menu = menubar.addMenu("&Edit")
+        # 编辑菜单
+        edit_menu = menubar.addMenu("编辑(&E)")
 
-        action_find = QAction("&Find", self)
+        action_find = QAction("查找(&F)", self)
         action_find.setShortcut(SHORTCUTS["find"])
         action_find.triggered.connect(self._search_bar.toggle)
         edit_menu.addAction(action_find)
 
-        action_find_next = QAction("Find &Next", self)
+        action_find_next = QAction("查找下一个(&N)", self)
         action_find_next.setShortcut(SHORTCUTS["find_next"])
         action_find_next.triggered.connect(self._search_bar.find_next)
         edit_menu.addAction(action_find_next)
 
-        action_find_prev = QAction("Find &Previous", self)
+        action_find_prev = QAction("查找上一个(&P)", self)
         action_find_prev.setShortcut(SHORTCUTS["find_prev"])
         action_find_prev.triggered.connect(self._search_bar.find_prev)
         edit_menu.addAction(action_find_prev)
 
-        # Help menu
-        help_menu = menubar.addMenu("&Help")
-        action_about = QAction("&About", self)
+        # 帮助菜单
+        help_menu = menubar.addMenu("帮助(&H)")
+        action_about = QAction("关于(&A)", self)
         action_about.triggered.connect(self._show_about)
         help_menu.addAction(action_about)
 
@@ -290,17 +289,17 @@ class MainWindow(QMainWindow):
         """)
         self.setStatusBar(self._statusbar)
 
-        self._file_label = QLabel("No file open")
+        self._file_label = QLabel("未打开文件")
         self._statusbar.addWidget(self._file_label)
 
         self._position_label = QLabel("")
         self._statusbar.addPermanentWidget(self._position_label)
 
-        self._theme_label = QLabel(f"Theme: {self._settings.theme}")
+        self._theme_label = QLabel(f"主题: {'暗色' if self._settings.theme == 'dark' else '亮色'}")
         self._statusbar.addPermanentWidget(self._theme_label)
 
         self._highlight_label = QLabel(
-            f"Highlight: {'ON' if self._settings.code_highlight_enabled else 'OFF'}"
+            f"高亮: {'开' if self._settings.code_highlight_enabled else '关'}"
         )
         self._statusbar.addPermanentWidget(self._highlight_label)
 
@@ -317,7 +316,7 @@ class MainWindow(QMainWindow):
             try:
                 text = path.read_text(encoding="utf-8-sig")
             except Exception:
-                QMessageBox.warning(self, "Error", f"Could not read file:\n{path}")
+                QMessageBox.warning(self, "错误", f"无法读取文件:\n{path}")
                 return
 
         self._current_file = path
@@ -325,7 +324,7 @@ class MainWindow(QMainWindow):
         self._editor.set_content(text)
         self._update_title()
         self._file_label.setText(str(path.name))
-        self._statusbar.showMessage(f"Opened {path.name}", 3000)
+        self._statusbar.showMessage(f"已打开 {path.name}", 3000)
 
         # Set sidebar root
         self._sidebar.set_root(path.parent)
@@ -343,16 +342,16 @@ class MainWindow(QMainWindow):
         self._editor.current_file = None
         self._editor.set_content("")
         self._update_title()
-        self._file_label.setText("Untitled")
+        self._file_label.setText("未命名")
         self._preview.show_placeholder()
         self._editor.setFocus()
 
     def _open_file_dialog(self):
         path, _ = QFileDialog.getOpenFileName(
             self,
-            "Open Markdown File",
+            "打开 Markdown 文件",
             "",
-            "Markdown Files (*.md *.markdown *.mdown *.mkd *.txt *.rst);;All Files (*)",
+            "Markdown 文件 (*.md *.markdown *.mdown *.mkd *.txt *.rst);;所有文件 (*)",
         )
         if path:
             self.open_file(Path(path))
@@ -364,16 +363,16 @@ class MainWindow(QMainWindow):
 
         try:
             self._current_file.write_text(self._editor.get_content(), encoding="utf-8")
-            self._statusbar.showMessage(f"Saved {self._current_file.name}", 3000)
+            self._statusbar.showMessage(f"已保存 {self._current_file.name}", 3000)
         except Exception as e:
-            QMessageBox.critical(self, "Save Error", f"Could not save:\n{e}")
+            QMessageBox.critical(self, "保存失败", f"无法保存:\n{e}")
 
     def _save_file_as(self):
         path, _ = QFileDialog.getSaveFileName(
             self,
-            "Save As",
+            "另存为",
             "",
-            "Markdown Files (*.md);;All Files (*)",
+            "Markdown 文件 (*.md);;所有文件 (*)",
         )
         if path:
             self._current_file = Path(path)
@@ -385,10 +384,10 @@ class MainWindow(QMainWindow):
         if self._preview.get_html():
             export_to_pdf(self._preview._text_browser, self)
         else:
-            QMessageBox.information(self, "Export", "No content to export. Open a Markdown file first.")
+            QMessageBox.information(self, "导出", "没有可导出的内容，请先打开 Markdown 文件。")
 
     def _update_title(self):
-        name = self._current_file.name if self._current_file else "Untitled"
+        name = self._current_file.name if self._current_file else "未命名"
         self.setWindowTitle(f"{name} — MarkdownReader")
 
     def _update_recent_menu(self):
@@ -400,7 +399,7 @@ class MainWindow(QMainWindow):
             action.triggered.connect(lambda checked, fp=file_path: self.open_file(Path(fp)))
             self._recent_menu.addAction(action)
         if not self._settings.recent_files:
-            action = QAction("(empty)", self)
+            action = QAction("(空)", self)
             action.setEnabled(False)
             self._recent_menu.addAction(action)
 
@@ -418,7 +417,7 @@ class MainWindow(QMainWindow):
         cursor = self._editor.textCursor()
         line = cursor.blockNumber() + 1
         col = cursor.columnNumber() + 1
-        self._position_label.setText(f"Ln {line}, Col {col}")
+        self._position_label.setText(f"行 {line}, 列 {col}")
 
     # ──────────────────────────── View Controls ────────────────────────────
 
@@ -434,13 +433,13 @@ class MainWindow(QMainWindow):
         new_theme = "light" if self._settings.theme == "dark" else "dark"
         self._settings.theme = new_theme
         self._apply_theme()
-        self._theme_label.setText(f"Theme: {new_theme}")
+        self._theme_label.setText(f"主题: {'暗色' if new_theme == 'dark' else '亮色'}")
         self._on_content_changed()
 
     def _toggle_code_highlight(self, checked: bool):
         self._settings.code_highlight_enabled = checked
         self._action_toggle_highlight.setChecked(checked)
-        self._highlight_label.setText(f"Highlight: {'ON' if checked else 'OFF'}")
+        self._highlight_label.setText(f"高亮: {'开' if checked else '关'}")
         self._on_content_changed()
 
     def _apply_theme(self):
@@ -526,24 +525,39 @@ class MainWindow(QMainWindow):
         self._preview.zoom_reset()
 
     def _show_about(self):
-        QMessageBox.about(
-            self,
-            "About MarkdownReader",
+        msg = QMessageBox(self)
+        msg.setWindowTitle("关于 MarkdownReader")
+        msg.setIcon(QMessageBox.Information)
+        msg.setTextFormat(Qt.RichText)
+        msg.setText(
             "<h2>MarkdownReader</h2>"
-            "<p>A modern Markdown viewer with live preview.</p>"
-            "<p>Features:</p>"
+            "<p>一款现代 Markdown 阅读器，支持实时预览</p>"
+            "<p><b>功能:</b></p>"
             "<ul>"
-            "<li>Live Markdown preview</li>"
-            "<li>File browser sidebar</li>"
-            "<li>Code syntax highlighting (Pygments)</li>"
-            "<li>Dark/Light theme toggle</li>"
-            "<li>Export to PDF</li>"
-            "<li>Search with regex support</li>"
-            "<li>Drag-and-drop file opening</li>"
-            "<li>Keyboard shortcuts</li>"
+            "<li>实时 Markdown 预览</li>"
+            "<li>文件浏览器侧边栏</li>"
+            "<li>代码语法高亮 (Pygments)</li>"
+            "<li>暗色/亮色主题切换</li>"
+            "<li>导出 PDF</li>"
+            "<li>正则表达式搜索</li>"
+            "<li>拖拽打开文件</li>"
+            "<li>键盘快捷键</li>"
             "</ul>"
-            f"<p>Version 0.1.0</p>"
+            "<p>版本 0.2.1</p>"
         )
+        msg.setStandardButtons(QMessageBox.Ok)
+        if self._settings.theme == "dark":
+            msg.setStyleSheet("""
+                QMessageBox { background: #161b22; color: #c9d1d9; }
+                QLabel { color: #c9d1d9; font-size: 13px; }
+                QPushButton {
+                    background: #21262d; color: #c9d1d9;
+                    border: 1px solid #30363d; border-radius: 6px;
+                    padding: 6px 16px; font-size: 13px;
+                }
+                QPushButton:hover { background: #30363d; }
+            """)
+        msg.exec_()
 
     # ──────────────────────────── Event Overrides ────────────────────────────
 

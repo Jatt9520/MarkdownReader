@@ -11,9 +11,9 @@ def export_to_pdf(text_browser, parent=None) -> bool:
 
     path, _ = QFileDialog.getSaveFileName(
         parent,
-        "Export to PDF",
+        "导出 PDF",
         "document.pdf",
-        "PDF Files (*.pdf);;All Files (*)",
+        "PDF 文件 (*.pdf);;所有文件 (*)",
     )
     if not path:
         return False
@@ -31,15 +31,15 @@ def export_to_pdf(text_browser, parent=None) -> bool:
 
         QMessageBox.information(
             parent,
-            "Export Complete",
-            f"PDF exported to:\n{output}",
+            "导出完成",
+            f"PDF 已导出到:\n{output}",
         )
         return True
 
     except Exception as e:
         QMessageBox.critical(
             parent,
-            "Export Failed",
-            f"Failed to export PDF:\n{e}",
+            "导出失败",
+            f"PDF 导出失败:\n{e}",
         )
         return False

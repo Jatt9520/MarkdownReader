@@ -17,7 +17,7 @@ def main():
             traceback.print_exc(file=f)
         print(f"FATAL ERROR — see {log_path}")
         traceback.print_exc()
-        input("Press Enter to exit...")
+        input("按 Enter 键退出...")
         sys.exit(1)
 
 

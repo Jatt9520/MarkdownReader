@@ -29,7 +29,7 @@ class SearchBar(QWidget):
         row.setSpacing(6)
 
         self._search_input = QLineEdit()
-        self._search_input.setPlaceholderText("Search...")
+        self._search_input.setPlaceholderText("搜索...")
         self._search_input.setFixedWidth(300)
         self._search_input.textChanged.connect(self._on_search_changed)
         self._search_input.returnPressed.connect(self.find_next)
@@ -81,13 +81,13 @@ class SearchBar(QWidget):
         # Options
         opt_style = "color: #8b949e; font-size: 12px; padding: 2px;"
         self._case_cb = QCheckBox("Aa")
-        self._case_cb.setToolTip("Case sensitive")
+        self._case_cb.setToolTip("区分大小写")
         self._case_cb.setStyleSheet(opt_style)
         self._case_cb.toggled.connect(self._on_search_changed)
         row.addWidget(self._case_cb)
 
         self._regex_cb = QCheckBox(".*")
-        self._regex_cb.setToolTip("Regular expression")
+        self._regex_cb.setToolTip("正则表达式")
         self._regex_cb.setStyleSheet(opt_style)
         self._regex_cb.toggled.connect(self._on_search_changed)
         row.addWidget(self._regex_cb)
