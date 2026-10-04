@@ -16,7 +16,9 @@ from markdownreader.preview import MarkdownPreview
 from markdownreader.sidebar import Sidebar
 from markdownreader.search_bar import SearchBar
 from markdownreader.settings import Settings
-from markdownreader.utils import SHORTCUTS, MARKDOWN_EXTENSIONS, is_markdown_file, read_text_auto
+from markdownreader.utils import (
+    SHORTCUTS, MARKDOWN_EXTENSIONS, is_markdown_file, read_text_auto, count_words,
+)
 
 
 class MainWindow(QMainWindow):
@@ -160,6 +162,10 @@ class MainWindow(QMainWindow):
         self._action_export_pdf.triggered.connect(self._export_pdf)
         file_menu.addAction(self._action_export_pdf)
 
+        self._action_export_html = QAction("导出HTML(&H)...", self)
+        self._action_export_html.triggered.connect(self._export_html)
+        file_menu.addAction(self._action_export_html)
+
         file_menu.addSeparator()
 
         self._action_quit = QAction("退出(&Q)", self)
@@ -260,6 +266,9 @@ class MainWindow(QMainWindow):
 
         self._position_label = QLabel("")
         self._statusbar.addPermanentWidget(self._position_label)
+
+        self._word_label = QLabel("")
+        self._statusbar.addPermanentWidget(self._word_label)
 
         self._theme_label = QLabel(f"主题: {'暗色' if self._settings.theme == 'dark' else '亮色'}")
         self._statusbar.addPermanentWidget(self._theme_label)
@@ -372,6 +381,27 @@ class MainWindow(QMainWindow):
         else:
             QMessageBox.information(self, "导出", "没有可导出的内容，请先打开 Markdown 文件。")
 
+    def _export_html(self):
+        if not self._preview.get_html():
+            QMessageBox.information(self, "导出", "没有可导出的内容，请先打开 Markdown 文件。")
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "导出 HTML",
+            "document.html",
+            "HTML 文件 (*.html);;所有文件 (*)",
+        )
+        if not path:
+            return
+        output = Path(path)
+        if not output.suffix:
+            output = output.with_suffix(".html")
+        try:
+            output.write_text(self._preview.get_html(), encoding="utf-8")
+            self._statusbar.showMessage(f"已导出 {output.name}", 3000)
+        except OSError as e:
+            QMessageBox.critical(self, "导出失败", f"无法导出 HTML:\n{e}")
+
     def _update_title(self):
         name = self._current_file.name if self._current_file else "未命名"
         self.setWindowTitle(f"{name} — MarkdownReader")
@@ -402,6 +432,11 @@ class MainWindow(QMainWindow):
         self._last_rendered_text = self._editor.get_content()
         self._preview.update_preview(self._last_rendered_text)
         self._update_position_label()
+        self._update_word_label()
+
+    def _update_word_label(self):
+        chars, words = count_words(self._editor.get_content())
+        self._word_label.setText(f"字符 {chars} · 词 {words}")
 
     def _update_position_label(self):
         cursor = self._editor.textCursor()
@@ -611,7 +646,8 @@ class MainWindow(QMainWindow):
             "<li>任务列表勾选框</li>"
             "<li>暗色/亮色主题切换</li>"
             "<li>最近打开的文件</li>"
-            "<li>导出 PDF</li>"
+            "<li>导出 PDF / HTML</li>"
+            "<li>字数统计</li>"
             "<li>正则表达式搜索</li>"
             "<li>拖拽打开文件</li>"
             "<li>键盘快捷键</li>"

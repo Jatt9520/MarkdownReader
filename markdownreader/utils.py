@@ -42,6 +42,19 @@ def read_text_auto(path: Path) -> tuple[str, str]:
     return raw.decode("utf-8", errors="replace"), "utf-8"
 
 
+def count_words(text: str) -> tuple[int, int]:
+    """Return (visible characters, words) for mixed CJK/Latin text.
+
+    CJK characters count as one word each; Latin/digit runs count as
+    one word per whitespace-delimited run.
+    """
+    import re
+    visible = re.sub(r"\s+", "", text)
+    cjk = len(re.findall(r"[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]", text))
+    latin = len(re.findall(r"[A-Za-z0-9_]+", text))
+    return len(visible), cjk + latin
+
+
 def make_app_icon():
     """Programmatic app icon: dark rounded square with a markdown-style M↓."""
     from PyQt5.QtCore import QRectF

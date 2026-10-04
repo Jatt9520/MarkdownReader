@@ -19,6 +19,8 @@ A modern Markdown reader with live preview, dark/light themes, and PDF export �
 - **GitHub-style Paragraphs** — Single newlines don't break lines by default; toggle in the View menu if you prefer hard-wrapping
 - **Dark/Light Themes** — Toggle between themes with `Ctrl+Shift+T`; editor, preview, and chrome all follow
 - **PDF Export** — Export the current document to PDF with `Ctrl+E`
+- **HTML Export** — Save the rendered page (with theme styling) as a standalone HTML file
+- **Word Count** — Live character/word count in the status bar (CJK-aware)
 - **Search** — Regex-capable find bar with `Ctrl+F`
 - **Recent Files** — Quick access to the last 10 opened files (File menu)
 - **Drag & Drop** — Drag markdown files onto the window to open them

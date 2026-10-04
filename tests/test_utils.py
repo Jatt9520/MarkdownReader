@@ -2,7 +2,9 @@
 
 from pathlib import Path
 
-from markdownreader.utils import MARKDOWN_EXTENSIONS, is_markdown_file, read_text_auto
+from markdownreader.utils import (
+    MARKDOWN_EXTENSIONS, count_words, is_markdown_file, read_text_auto,
+)
 
 
 def test_markdown_extension_whitelist(tmp_path):
@@ -39,3 +41,13 @@ def test_read_binary_never_crashes(tmp_path):
     p.write_bytes(bytes(range(256)) * 16)
     text, _ = read_text_auto(p)
     assert isinstance(text, str) and text  # replacement decode, no exception
+
+
+def test_count_words_exact():
+    assert count_words("") == (0, 0)
+    assert count_words("   \n  ") == (0, 0)
+    assert count_words("alpha\nbeta") == (9, 2)
+    assert count_words("中文测试") == (4, 4)
+    # 你/好/喵 = 3 CJK words; world, 42, tail = 3 latin words
+    assert count_words("你好 world 喵 42\ntail") == (14, 6)
+    assert count_words("中文 English") == (9, 3)
