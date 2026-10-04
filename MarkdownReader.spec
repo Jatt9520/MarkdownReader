@@ -18,6 +18,7 @@ a = Analysis(
         'pygments.formatters.html',
         'pygments.styles',
         'pygments.lexers',
+        'PyQt5.QtNetwork',
     ],
     excludes=['tkinter'],
     noarchive=False,

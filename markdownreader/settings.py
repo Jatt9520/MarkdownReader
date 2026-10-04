@@ -80,6 +80,35 @@ class Settings:
     def preview_nl2br(self, value: bool):
         self._qs.setValue("preview_nl2br", value)
 
+    # --- AI assistant (bring your own key) ---
+    @property
+    def ai_api_base(self) -> str:
+        return str(self._qs.value("ai_api_base", "", type=str))
+
+    @ai_api_base.setter
+    def ai_api_base(self, value: str):
+        self._qs.setValue("ai_api_base", value)
+
+    @property
+    def ai_api_key(self) -> str:
+        return str(self._qs.value("ai_api_key", "", type=str))
+
+    @ai_api_key.setter
+    def ai_api_key(self, value: str):
+        self._qs.setValue("ai_api_key", value)
+
+    @property
+    def ai_model(self) -> str:
+        return str(self._qs.value("ai_model", "", type=str))
+
+    @ai_model.setter
+    def ai_model(self, value: str):
+        self._qs.setValue("ai_model", value)
+
+    @property
+    def ai_configured(self) -> bool:
+        return bool(self.ai_api_base.strip() and self.ai_model.strip())
+
     # --- Recent files ---
     @property
     def recent_files(self) -> list[str]:

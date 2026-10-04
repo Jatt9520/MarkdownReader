@@ -247,6 +247,13 @@ class MainWindow(QMainWindow):
         action_find_prev.triggered.connect(self._search_bar.find_prev)
         edit_menu.addAction(action_find_prev)
 
+        # 设置菜单
+        settings_menu = menubar.addMenu("设置(&S)")
+        self._action_ai_settings = QAction("AI 助手(&A)...", self)
+        self._action_ai_settings.setStatusTip("配置 AI 服务商（自带 API Key）")
+        self._action_ai_settings.triggered.connect(self._open_ai_settings)
+        settings_menu.addAction(self._action_ai_settings)
+
         # 帮助菜单
         help_menu = menubar.addMenu("帮助(&H)")
         action_about = QAction("关于(&A)", self)
@@ -629,6 +636,12 @@ class MainWindow(QMainWindow):
         font.setPointSize(self._settings.editor_font_size)
         self._editor.setFont(font)
         self._preview.zoom_reset()
+
+    def _open_ai_settings(self):
+        from markdownreader.ai.settings_dialog import AISettingsDialog
+        dialog = AISettingsDialog(self._settings, self)
+        if dialog.exec_() and self._settings.ai_configured:
+            self._statusbar.showMessage("AI 助手已配置", 3000)
 
     def _show_about(self):
         msg = QMessageBox(self)
