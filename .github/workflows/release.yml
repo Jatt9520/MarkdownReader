@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Build portable EXE
+        run: pyinstaller MarkdownReader.spec --noconfirm --clean
+
+      - name: Zip portable build
+        shell: pwsh
+        run: Compress-Archive -Path dist/MarkdownReader/* -DestinationPath "MarkdownReader-${{ github.ref_name }}.zip"
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: MarkdownReader-*.zip
+          generate_release_notes: true
