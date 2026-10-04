@@ -98,6 +98,7 @@ class MarkdownEditor(QPlainTextEdit):
         super().__init__(parent)
         self._current_file: Path | None = None
         self._theme = "dark"
+        self.ai_menu_hook = None  # callable(QMenu) — set by the AI assistant
         self._change_timer = QTimer()
         self._change_timer.setSingleShot(True)
         self._change_timer.setInterval(300)
@@ -230,3 +231,10 @@ class MarkdownEditor(QPlainTextEdit):
 
     def get_content(self) -> str:
         return self.toPlainText()
+
+    def contextMenuEvent(self, event):
+        """Standard context menu with optional AI actions prepended."""
+        menu = self.createStandardContextMenu()
+        if self.ai_menu_hook is not None:
+            self.ai_menu_hook(menu)
+        menu.exec_(event.globalPos())

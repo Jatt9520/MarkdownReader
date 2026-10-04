@@ -41,6 +41,9 @@ class MainWindow(QMainWindow):
         self._setup_shortcuts()
         self._setup_statusbar()
 
+        from markdownreader.ai.assistant import AIAssistant
+        self._ai = AIAssistant(self._settings, self._editor, self._statusbar, self)
+
         self._apply_theme()
 
     def _restore_geometry(self):
