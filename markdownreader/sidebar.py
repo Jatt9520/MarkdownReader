@@ -1,21 +1,22 @@
-"""File browser sidebar — tree view of the filesystem."""
+"""Sidebar — file browser tree plus document heading outline."""
 
 from pathlib import Path
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QFont, QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QFont, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QTreeView, QLabel, QHBoxLayout,
-    QLineEdit, QFileSystemModel, QHeaderView, QToolButton, QSizePolicy,
+    QTabWidget, QListWidget, QListWidgetItem, QToolButton,
 )
 
 from markdownreader.utils import is_markdown_file
 
 
 class Sidebar(QWidget):
-    """Collapsible file browser sidebar with tree view."""
+    """Collapsible sidebar with a file tree tab and a heading outline tab."""
 
     file_selected = pyqtSignal(Path)
+    outline_selected = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -53,7 +54,10 @@ class Sidebar(QWidget):
 
         layout.addWidget(header)
 
-        # Tree view
+        # Tabs: file tree + heading outline
+        self._tabs = QTabWidget()
+        self._tabs.setDocumentMode(True)
+
         self._tree = QTreeView()
         self._tree.setHeaderHidden(True)
         self._tree.setAnimated(True)
@@ -65,7 +69,13 @@ class Sidebar(QWidget):
         self._model = QStandardItemModel()
         self._tree.setModel(self._model)
 
-        layout.addWidget(self._tree)
+        self._outline_list = QListWidget()
+        self._outline_list.setUniformItemSizes(False)
+        self._outline_list.itemClicked.connect(self._on_outline_clicked)
+
+        self._tabs.addTab(self._tree, "文件")
+        self._tabs.addTab(self._outline_list, "大纲")
+        layout.addWidget(self._tabs)
 
     def set_root(self, path: Path):
         """Set the root directory for the file tree."""
@@ -75,6 +85,29 @@ class Sidebar(QWidget):
         self._current_dir = path
         self._title.setText(path.name or str(path))
         self._build_tree(path)
+
+    def set_outline(self, headings: list):
+        """Fill the outline tab with (level, text, anchor) tuples."""
+        self._outline_list.clear()
+        if not headings:
+            empty = QListWidgetItem("(无标题)")
+            empty.setFlags(Qt.NoItemFlags)
+            self._outline_list.addItem(empty)
+            return
+
+        for level, text, anchor in headings:
+            item = QListWidgetItem("    " * (level - 1) + text)
+            item.setData(Qt.UserRole, anchor)
+            font = QFont("Segoe UI", 9)
+            if level <= 2:
+                font.setBold(True)
+            item.setFont(font)
+            self._outline_list.addItem(item)
+
+    def _on_outline_clicked(self, item: QListWidgetItem):
+        anchor = item.data(Qt.UserRole)
+        if anchor:
+            self.outline_selected.emit(anchor)
 
     def _build_tree(self, root: Path):
         """Recursively build the file tree."""
@@ -121,9 +154,9 @@ class Sidebar(QWidget):
                 self.file_selected.emit(path)
 
     def _toggle_collapse(self):
-        if self._tree.isVisible():
-            self._tree.hide()
+        if self._tabs.isVisible():
+            self._tabs.hide()
             self._collapse_btn.setText("▶")
         else:
-            self._tree.show()
+            self._tabs.show()
             self._collapse_btn.setText("◀")

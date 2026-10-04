@@ -4,18 +4,18 @@ import sys
 from pathlib import Path
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeySequence, QDragEnterEvent, QDropEvent, QIcon
+from PyQt5.QtGui import QKeySequence, QDragEnterEvent, QDropEvent
 from PyQt5.QtWidgets import (
     QMainWindow, QSplitter, QAction, QMenuBar, QStatusBar,
     QToolBar, QLabel, QFileDialog, QMessageBox, QWidget, QVBoxLayout,
     QApplication, QSizePolicy, QShortcut,
 )
 
+from markdownreader import __version__
 from markdownreader.editor import MarkdownEditor
 from markdownreader.preview import MarkdownPreview
 from markdownreader.sidebar import Sidebar
 from markdownreader.search_bar import SearchBar
-from markdownreader.renderer import render_with_theme
 from markdownreader.pdf_export import export_to_pdf
 from markdownreader.settings import Settings
 from markdownreader.utils import SHORTCUTS, is_markdown_file
@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
         # Sidebar
         self._sidebar = Sidebar(self)
         self._sidebar.file_selected.connect(self._on_sidebar_file_selected)
+        self._sidebar.outline_selected.connect(self._preview_scroll_to_heading)
 
         # Editor
         self._editor = MarkdownEditor(self)
@@ -69,6 +70,7 @@ class MainWindow(QMainWindow):
 
         # Preview
         self._preview = MarkdownPreview(self._settings, self)
+        self._preview.outline_changed.connect(self._sidebar.set_outline)
         self._preview.show_placeholder()
 
         # Search bar (overlays above editor)
@@ -113,49 +115,6 @@ class MainWindow(QMainWindow):
 
     def _setup_menus(self):
         menubar = self.menuBar()
-        menubar.setStyleSheet("""
-            QMenuBar {
-                background: #0d1117;
-                color: #c9d1d9;
-                border-bottom: 1px solid #21262d;
-                padding: 2px 0;
-                font-size: 13px;
-            }
-            QMenuBar::item {
-                padding: 4px 10px;
-                border-radius: 4px;
-            }
-            QMenuBar::item:selected {
-                background: #21262d;
-            }
-            QMenu {
-                background: #161b22;
-                color: #c9d1d9;
-                border: 1px solid #30363d;
-                border-radius: 6px;
-                padding: 4px 0;
-                font-size: 13px;
-            }
-            QMenu::item {
-                padding: 6px 24px 6px 12px;
-                border-radius: 4px;
-                margin: 2px 4px;
-            }
-            QMenu::item:selected {
-                background: #21262d;
-            }
-            QMenu::item:disabled {
-                color: #484f58;
-            }
-            QMenu::separator {
-                height: 1px;
-                background: #21262d;
-                margin: 4px 8px;
-            }
-            QMenu::icon {
-                padding-left: 8px;
-            }
-        """)
 
         # 文件菜单
         file_menu = menubar.addMenu("文件(&F)")
@@ -219,6 +178,13 @@ class MainWindow(QMainWindow):
         self._action_toggle_highlight.triggered.connect(self._toggle_code_highlight)
         view_menu.addAction(self._action_toggle_highlight)
 
+        self._action_toggle_nl2br = QAction("单换行渲染为换行(&N)", self)
+        self._action_toggle_nl2br.setCheckable(True)
+        self._action_toggle_nl2br.setChecked(self._settings.preview_nl2br)
+        self._action_toggle_nl2br.setStatusTip("开启后单个换行也会折行（关闭时与 GitHub 渲染一致）")
+        self._action_toggle_nl2br.triggered.connect(self._toggle_nl2br)
+        view_menu.addAction(self._action_toggle_nl2br)
+
         view_menu.addSeparator()
 
         action_zoom_in = QAction("放大(&I)", self)
@@ -278,15 +244,6 @@ class MainWindow(QMainWindow):
 
     def _setup_statusbar(self):
         self._statusbar = QStatusBar()
-        self._statusbar.setStyleSheet("""
-            QStatusBar {
-                background: #0d1117;
-                color: #8b949e;
-                border-top: 1px solid #21262d;
-                font-size: 12px;
-                padding: 2px 8px;
-            }
-        """)
         self.setStatusBar(self._statusbar)
 
         self._file_label = QLabel("未打开文件")
@@ -409,9 +366,13 @@ class MainWindow(QMainWindow):
         """Debounced content update → preview render."""
         text = self._editor.get_content()
         if text != self._last_rendered_text:
-            self._last_rendered_text = text
-            self._preview.update_preview(text)
-            self._update_position_label()
+            self._rerender_preview()
+
+    def _rerender_preview(self):
+        """Force a preview render — for rendering-related setting changes."""
+        self._last_rendered_text = self._editor.get_content()
+        self._preview.update_preview(self._last_rendered_text)
+        self._update_position_label()
 
     def _update_position_label(self):
         cursor = self._editor.textCursor()
@@ -434,13 +395,58 @@ class MainWindow(QMainWindow):
         self._settings.theme = new_theme
         self._apply_theme()
         self._theme_label.setText(f"主题: {'暗色' if new_theme == 'dark' else '亮色'}")
-        self._on_content_changed()
+        self._rerender_preview()
 
     def _toggle_code_highlight(self, checked: bool):
         self._settings.code_highlight_enabled = checked
         self._action_toggle_highlight.setChecked(checked)
         self._highlight_label.setText(f"高亮: {'开' if checked else '关'}")
-        self._on_content_changed()
+        self._rerender_preview()
+
+    def _toggle_nl2br(self, checked: bool):
+        self._settings.preview_nl2br = checked
+        self._action_toggle_nl2br.setChecked(checked)
+        self._rerender_preview()
+
+    def _preview_scroll_to_heading(self, anchor: str):
+        self._preview.scroll_to_heading(anchor)
+
+    def _menubar_stylesheet(self, theme: str) -> str:
+        if theme == "dark":
+            return """
+                QMenuBar {
+                    background: #0d1117; color: #c9d1d9;
+                    border-bottom: 1px solid #21262d; padding: 2px 0; font-size: 13px;
+                }
+                QMenuBar::item { padding: 4px 10px; border-radius: 4px; }
+                QMenuBar::item:selected { background: #21262d; }
+                QMenu {
+                    background: #161b22; color: #c9d1d9; border: 1px solid #30363d;
+                    border-radius: 6px; padding: 4px 0; font-size: 13px;
+                }
+                QMenu::item { padding: 6px 24px 6px 12px; border-radius: 4px; margin: 2px 4px; }
+                QMenu::item:selected { background: #21262d; }
+                QMenu::item:disabled { color: #484f58; }
+                QMenu::separator { height: 1px; background: #21262d; margin: 4px 8px; }
+                QMenu::icon { padding-left: 8px; }
+            """
+        return """
+            QMenuBar {
+                background: #ffffff; color: #1f2328;
+                border-bottom: 1px solid #d0d7de; padding: 2px 0; font-size: 13px;
+            }
+            QMenuBar::item { padding: 4px 10px; border-radius: 4px; }
+            QMenuBar::item:selected { background: #eaeef2; }
+            QMenu {
+                background: #ffffff; color: #1f2328; border: 1px solid #d0d7de;
+                border-radius: 6px; padding: 4px 0; font-size: 13px;
+            }
+            QMenu::item { padding: 6px 24px 6px 12px; border-radius: 4px; margin: 2px 4px; }
+            QMenu::item:selected { background: #eaeef2; }
+            QMenu::item:disabled { color: #8c959f; }
+            QMenu::separator { height: 1px; background: #d0d7de; margin: 4px 8px; }
+            QMenu::icon { padding-left: 8px; }
+        """
 
     def _apply_theme(self):
         theme = self._settings.theme
@@ -468,6 +474,18 @@ class MainWindow(QMainWindow):
             QWidget {{ color: {fg}; font-size: 13px; }}
         """)
 
+        self.menuBar().setStyleSheet(self._menubar_stylesheet(theme))
+        self._statusbar.setStyleSheet(f"""
+            QStatusBar {{
+                background: {sidebar_bg};
+                color: {'#8b949e' if theme == 'dark' else '#57606a'};
+                border-top: 1px solid {handle};
+                font-size: 12px;
+                padding: 2px 8px;
+            }}
+        """)
+
+        self._editor.set_theme(theme)
         self._editor.setStyleSheet(f"""
             QPlainTextEdit {{
                 background-color: {editor_bg};
@@ -535,15 +553,17 @@ class MainWindow(QMainWindow):
             "<p><b>功能:</b></p>"
             "<ul>"
             "<li>实时 Markdown 预览</li>"
-            "<li>文件浏览器侧边栏</li>"
-            "<li>代码语法高亮 (Pygments)</li>"
+            "<li>文件浏览器 + 标题大纲侧边栏</li>"
+            "<li>代码语法高亮 (Pygments，随主题配色)</li>"
+            "<li>任务列表勾选框</li>"
             "<li>暗色/亮色主题切换</li>"
+            "<li>最近打开的文件</li>"
             "<li>导出 PDF</li>"
             "<li>正则表达式搜索</li>"
             "<li>拖拽打开文件</li>"
             "<li>键盘快捷键</li>"
             "</ul>"
-            "<p>版本 1.0.0</p>"
+            f"<p>版本 {__version__}</p>"
         )
         msg.setStandardButtons(QMessageBox.Ok)
         if self._settings.theme == "dark":

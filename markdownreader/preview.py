@@ -2,16 +2,18 @@
 
 from pathlib import Path
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QTextBrowser
 
-from markdownreader.renderer import render_with_theme
+from markdownreader.renderer import render_document
 from markdownreader.settings import Settings
 
 
 class MarkdownPreview(QWidget):
     """Rendered markdown preview panel."""
+
+    outline_changed = pyqtSignal(list)
 
     def __init__(self, settings: Settings, parent=None):
         super().__init__(parent)
@@ -38,10 +40,15 @@ class MarkdownPreview(QWidget):
 
     def update_preview(self, markdown_text: str):
         """Re-render the preview with new markdown content."""
-        html = render_with_theme(markdown_text, self._settings.theme, self._settings,
-                                  self._settings.code_highlight_enabled)
+        html, outline = render_document(markdown_text, self._settings.theme, self._settings,
+                                        self._settings.code_highlight_enabled)
         self._current_html = html
         self._text_browser.setHtml(html)
+        self.outline_changed.emit(outline)
+
+    def scroll_to_heading(self, anchor: str):
+        """Jump to a heading anchor injected by the renderer."""
+        self._text_browser.scrollToAnchor(anchor)
 
     def show_placeholder(self):
         self._text_browser.hide()

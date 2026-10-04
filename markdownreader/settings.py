@@ -73,6 +73,16 @@ class Settings:
     def code_highlight_enabled(self, value: bool):
         self._qs.setValue("code_highlight_enabled", value)
 
+    # --- Paragraph rendering ---
+    @property
+    def preview_nl2br(self) -> bool:
+        """Render single newlines as <br> (non-GitHub style)."""
+        return bool(self._qs.value("preview_nl2br", False, type=bool))
+
+    @preview_nl2br.setter
+    def preview_nl2br(self, value: bool):
+        self._qs.setValue("preview_nl2br", value)
+
     # --- Recent files ---
     @property
     def recent_files(self) -> list[str]:

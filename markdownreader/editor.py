@@ -27,57 +27,57 @@ class LineNumberArea(QWidget):
 
 
 class MarkdownSyntaxHighlighter(QSyntaxHighlighter):
-    """Lightweight Markdown syntax highlighting for the editor."""
+    """Markdown syntax highlighting for the editor, themed for the pane."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self._rules = []
+        self.set_theme("dark")
 
-        # Headings
-        fmt_h = QTextCharFormat()
-        fmt_h.setForeground(QColor("#79c0ff"))
-        fmt_h.setFontWeight(QFont.Bold)
-        self._rules.append((fmt_h, r"^#{1,6}\s+.*$"))
+    def set_theme(self, theme: str):
+        if theme == "light":
+            palette = [
+                # headings
+                (QColor("#0550ae"), None, False, False, r"^#{1,6}\s+.*$"),
+                # bold
+                (QColor("#1f2328"), None, True, False, r"\*\*[^*]+\*\*"),
+                # italic
+                (QColor("#57606a"), None, False, True, r"(?<!\*)\*(?!\*)[^*]+\*(?!\*)"),
+                # inline code
+                (QColor("#8250df"), QColor("#f6f8fa"), False, False, r"`[^`]+`"),
+                # links
+                (QColor("#0a3069"), None, False, True, r"\[([^\]]+)\]\([^\)]+\)"),
+                # blockquote
+                (QColor("#57606a"), None, False, True, r"^>\s+.*$"),
+                # horizontal rule
+                (QColor("#d0d7de"), None, False, False, r"^(-{3,}|\*{3,}|_{3,})$"),
+                # list markers
+                (QColor("#cf222e"), None, False, False, r"^(\s*[-*+]|\s*\d+\.)\s"),
+            ]
+        else:
+            palette = [
+                (QColor("#79c0ff"), None, False, False, r"^#{1,6}\s+.*$"),
+                (QColor("#e6edf3"), None, True, False, r"\*\*[^*]+\*\*"),
+                (QColor("#c9d1d9"), None, False, True, r"(?<!\*)\*(?!\*)[^*]+\*(?!\*)"),
+                (QColor("#79c0ff"), QColor("#161b22"), False, False, r"`[^`]+`"),
+                (QColor("#58a6ff"), None, False, True, r"\[([^\]]+)\]\([^\)]+\)"),
+                (QColor("#8b949e"), None, False, True, r"^>\s+.*$"),
+                (QColor("#30363d"), None, False, False, r"^(-{3,}|\*{3,}|_{3,})$"),
+                (QColor("#ff7b72"), None, False, False, r"^(\s*[-*+]|\s*\d+\.)\s"),
+            ]
 
-        # Bold
-        fmt_bold = QTextCharFormat()
-        fmt_bold.setFontWeight(QFont.Bold)
-        fmt_bold.setForeground(QColor("#e6edf3"))
-        self._rules.append((fmt_bold, r"\*\*[^*]+\*\*"))
-
-        # Italic
-        fmt_italic = QTextCharFormat()
-        fmt_italic.setFontItalic(True)
-        fmt_italic.setForeground(QColor("#c9d1d9"))
-        self._rules.append((fmt_italic, r"(?<!\*)\*(?!\*)[^*]+\*(?!\*)"))
-
-        # Inline code
-        fmt_code = QTextCharFormat()
-        fmt_code.setForeground(QColor("#79c0ff"))
-        fmt_code.setBackground(QColor("#161b22"))
-        self._rules.append((fmt_code, r"`[^`]+`"))
-
-        # Links
-        fmt_link = QTextCharFormat()
-        fmt_link.setForeground(QColor("#58a6ff"))
-        fmt_link.setFontUnderline(True)
-        self._rules.append((fmt_link, r"\[([^\]]+)\]\([^\)]+\)"))
-
-        # Blockquote
-        fmt_bq = QTextCharFormat()
-        fmt_bq.setForeground(QColor("#8b949e"))
-        fmt_bq.setFontItalic(True)
-        self._rules.append((fmt_bq, r"^>\s+.*$"))
-
-        # Horizontal rule
-        fmt_hr = QTextCharFormat()
-        fmt_hr.setForeground(QColor("#30363d"))
-        self._rules.append((fmt_hr, r"^(-{3,}|\*{3,}|_{3,})$"))
-
-        # List markers
-        fmt_list = QTextCharFormat()
-        fmt_list.setForeground(QColor("#ff7b72"))
-        self._rules.append((fmt_list, r"^(\s*[-*+]|\s*\d+\.)\s"))
+        self._rules = []
+        for color, bg, bold, italic, pattern in palette:
+            fmt = QTextCharFormat()
+            fmt.setForeground(color)
+            if bg:
+                fmt.setBackground(bg)
+            if bold:
+                fmt.setFontWeight(QFont.Bold)
+            if italic:
+                fmt.setFontItalic(True)
+            self._rules.append((fmt, pattern))
+        self.rehighlight()
 
     def highlightBlock(self, text: str):
         import re
@@ -93,9 +93,16 @@ class MarkdownEditor(QPlainTextEdit):
 
     content_changed = pyqtSignal()
 
+    # Gutter colors per theme: (background, current line, other lines)
+    GUTTER_COLORS = {
+        "dark": ("#0d1117", "#58a6ff", "#484f58"),
+        "light": ("#f6f8fa", "#0969da", "#8c959f"),
+    }
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self._current_file: Path | None = None
+        self._theme = "dark"
         self._change_timer = QTimer()
         self._change_timer.setSingleShot(True)
         self._change_timer.setInterval(300)
@@ -104,6 +111,12 @@ class MarkdownEditor(QPlainTextEdit):
         self._setup_editor()
         self._setup_line_numbers()
         self._setup_highlighter()
+
+    def set_theme(self, theme: str):
+        """Restyle gutter and syntax colors for the given theme."""
+        self._theme = theme
+        self._highlighter.set_theme(theme)
+        self._line_area.update()
 
     def _setup_editor(self):
         font = QFont("Cascadia Code", 14)
@@ -157,8 +170,9 @@ class MarkdownEditor(QPlainTextEdit):
 
     def line_number_area_paint_event(self, event):
         from PyQt5.QtGui import QPainter, QFont
+        gutter_bg, current_color, number_color = self.GUTTER_COLORS.get(self._theme, self.GUTTER_COLORS["dark"])
         painter = QPainter(self._line_area)
-        painter.fillRect(event.rect(), QColor("#0d1117"))
+        painter.fillRect(event.rect(), QColor(gutter_bg))
 
         font = QFont("Cascadia Code", 11)
         font.setStyleHint(QFont.Monospace)
@@ -176,9 +190,9 @@ class MarkdownEditor(QPlainTextEdit):
             if block.isVisible() and bottom >= event.rect().top():
                 number = str(block_number + 1)
                 if block_number == current_line:
-                    painter.setPen(QColor("#58a6ff"))
+                    painter.setPen(QColor(current_color))
                 else:
-                    painter.setPen(QColor("#484f58"))
+                    painter.setPen(QColor(number_color))
                 painter.drawText(
                     0, top, self._line_area.width() - 4,
                     self.fontMetrics().height(),
