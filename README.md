@@ -105,13 +105,14 @@ Pushing a `v*` tag (e.g. `v1.1.0`) triggers GitHub Actions to build the portable
 ```bash
 pip install build
 python -m build
-pip install dist/markdownreader-1.1.0-py3-none-any.whl
+pip install dist/markdownreader-1.2.0-py3-none-any.whl
 ```
 
 ## Project Structure
 
 ```
 MarkdownReader/
+├── .github/workflows/ci.yml        # Tests on push/PR
 ├── .github/workflows/release.yml   # Tag-driven release build
 ├── LICENSE
 ├── MarkdownReader.spec             # PyInstaller spec (onedir, windowed)
@@ -119,6 +120,7 @@ MarkdownReader/
 ├── docs/                           # Screenshots
 ├── pyproject.toml
 ├── requirements.txt
+├── tests/                          # pytest suite
 └── markdownreader/
     ├── __init__.py                 # Version
     ├── __main__.py
