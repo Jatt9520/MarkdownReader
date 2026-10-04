@@ -276,6 +276,10 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(self, "错误", f"无法读取文件:\n{path}")
                 return
 
+        # Relative image/link paths must be set before set_content(): the
+        # first preview render fires synchronously inside it
+        self._preview.set_base_dir(path.parent)
+
         self._current_file = path
         self._editor.current_file = path
         self._editor.set_content(text)
@@ -297,6 +301,7 @@ class MainWindow(QMainWindow):
     def _new_file(self):
         self._current_file = None
         self._editor.current_file = None
+        self._preview.set_base_dir(None)
         self._editor.set_content("")
         self._update_title()
         self._file_label.setText("未命名")
@@ -334,6 +339,7 @@ class MainWindow(QMainWindow):
         if path:
             self._current_file = Path(path)
             self._editor.current_file = self._current_file
+            self._preview.set_base_dir(self._current_file.parent)
             self._save_file()
             self._update_title()
 

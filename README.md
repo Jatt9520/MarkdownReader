@@ -15,6 +15,7 @@ A modern Markdown reader with live preview, dark/light themes, and PDF export �
 - **File Browser** — Sidebar tree view for navigating project files
 - **Code Highlighting** — Pygments-powered syntax highlighting that follows the theme (`github-dark` palette on the dark theme, `default` on light), toggle with `Ctrl+Shift+H`
 - **Task Lists** — `- [ ]` / `- [x]` items render as checkboxes
+- **Local Images** — Relative image paths (`![](img.png)`) resolve against the opened file's folder; remote images are not fetched (the preview engine is offline by design)
 - **GitHub-style Paragraphs** — Single newlines don't break lines by default; toggle in the View menu if you prefer hard-wrapping
 - **Dark/Light Themes** — Toggle between themes with `Ctrl+Shift+T`; editor, preview, and chrome all follow
 - **PDF Export** — Export the current document to PDF with `Ctrl+E`

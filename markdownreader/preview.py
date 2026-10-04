@@ -1,8 +1,9 @@
 """Live Markdown preview using QTextBrowser."""
 
+import os
 from pathlib import Path
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QTextBrowser
 
@@ -20,6 +21,7 @@ class MarkdownPreview(QWidget):
         self._settings = settings
         self._current_html = ""
         self._zoom_level = 0
+        self._base_dir: Path | None = None
         self._setup_ui()
 
     def _setup_ui(self):
@@ -38,11 +40,20 @@ class MarkdownPreview(QWidget):
         self._placeholder.hide()
         layout.addWidget(self._placeholder)
 
+    def set_base_dir(self, directory: Path | None):
+        """Directory relative image/link paths resolve against."""
+        self._base_dir = directory
+
     def update_preview(self, markdown_text: str):
         """Re-render the preview with new markdown content."""
         html, outline = render_document(markdown_text, self._settings.theme, self._settings,
                                         self._settings.code_highlight_enabled)
         self._current_html = html
+        document = self._text_browser.document()
+        if self._base_dir is not None:
+            document.setBaseUrl(QUrl.fromLocalFile(str(self._base_dir) + os.sep))
+        else:
+            document.setBaseUrl(QUrl())
         self._text_browser.setHtml(html)
         self.outline_changed.emit(outline)
 
