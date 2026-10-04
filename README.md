@@ -22,6 +22,7 @@ A modern Markdown reader with live preview, dark/light themes, and PDF export �
 - **Search** — Regex-capable find bar with `Ctrl+F`
 - **Recent Files** — Quick access to the last 10 opened files (File menu)
 - **Drag & Drop** — Drag markdown files onto the window to open them
+- **Encoding Detection** — Opens UTF-8, UTF-8 BOM, and GB18030/GBK/GB2312 files automatically (status bar shows the detected encoding); never fails to open a file
 
 ## Requirements
 
@@ -29,6 +30,10 @@ A modern Markdown reader with live preview, dark/light themes, and PDF export �
 - PyQt5
 - Pygments ≥ 2.17
 - Markdown
+
+### Supported file types
+
+`.md` `.markdown` `.mdown` `.mkd` `.mkdn` `.mdwn` `.livemd` `.qmd` `.rmd` `.txt` `.text` `.rst` — all rendered as Markdown.
 
 ## Installation
 

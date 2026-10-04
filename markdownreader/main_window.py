@@ -18,7 +18,7 @@ from markdownreader.sidebar import Sidebar
 from markdownreader.search_bar import SearchBar
 from markdownreader.pdf_export import export_to_pdf
 from markdownreader.settings import Settings
-from markdownreader.utils import SHORTCUTS, is_markdown_file
+from markdownreader.utils import SHORTCUTS, MARKDOWN_EXTENSIONS, is_markdown_file, read_text_auto
 
 
 class MainWindow(QMainWindow):
@@ -268,13 +268,10 @@ class MainWindow(QMainWindow):
             return
 
         try:
-            text = path.read_text(encoding="utf-8")
-        except UnicodeDecodeError:
-            try:
-                text = path.read_text(encoding="utf-8-sig")
-            except Exception:
-                QMessageBox.warning(self, "错误", f"无法读取文件:\n{path}")
-                return
+            text, encoding = read_text_auto(path)
+        except OSError:
+            QMessageBox.warning(self, "错误", f"无法读取文件:\n{path}")
+            return
 
         # Relative image/link paths must be set before set_content(): the
         # first preview render fires synchronously inside it
@@ -285,7 +282,8 @@ class MainWindow(QMainWindow):
         self._editor.set_content(text)
         self._update_title()
         self._file_label.setText(str(path.name))
-        self._statusbar.showMessage(f"已打开 {path.name}", 3000)
+        encoding_note = "" if encoding.lower().startswith("utf-8") else f" · {encoding.upper()}"
+        self._statusbar.showMessage(f"已打开 {path.name}{encoding_note}", 3000)
 
         # Set sidebar root
         self._sidebar.set_root(path.parent)
@@ -309,11 +307,12 @@ class MainWindow(QMainWindow):
         self._editor.setFocus()
 
     def _open_file_dialog(self):
+        ext_pattern = " ".join(f"*{ext}" for ext in sorted(MARKDOWN_EXTENSIONS))
         path, _ = QFileDialog.getOpenFileName(
             self,
             "打开 Markdown 文件",
             "",
-            "Markdown 文件 (*.md *.markdown *.mdown *.mkd *.txt *.rst);;所有文件 (*)",
+            f"Markdown/文本文件 ({ext_pattern});;所有文件 (*)",
         )
         if path:
             self.open_file(Path(path))
