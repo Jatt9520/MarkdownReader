@@ -7,6 +7,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
 from markdownreader.settings import Settings
+from markdownreader.utils import make_app_icon
 from markdownreader.main_window import MainWindow
 
 
@@ -18,6 +19,7 @@ class MarkdownReaderApp:
         self.qapp = QApplication(argv)
         self.qapp.setApplicationName("MarkdownReader")
         self.qapp.setOrganizationName("MarkdownReader")
+        self.qapp.setWindowIcon(make_app_icon())
 
         self.settings = Settings()
         self.settings.load()

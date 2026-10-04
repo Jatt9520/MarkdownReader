@@ -474,9 +474,22 @@ class MainWindow(QMainWindow):
             sel_bg = "#b3d7ff"
             hover_bg = "#eaeef2"
 
+        scroll_handle = "#30363d" if theme == "dark" else "#d0d7de"
+        scroll_hover = "#484f58" if theme == "dark" else "#8c959f"
+        accent = "#58a6ff" if theme == "dark" else "#0969da"
         self.setStyleSheet(f"""
             QMainWindow {{ background: {bg}; }}
             QWidget {{ color: {fg}; font-size: 13px; }}
+            QScrollBar:vertical {{ background: transparent; width: 10px; margin: 0; }}
+            QScrollBar::handle:vertical {{ background: {scroll_handle}; border-radius: 5px; min-height: 30px; }}
+            QScrollBar::handle:vertical:hover {{ background: {scroll_hover}; }}
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height: 0; }}
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{ background: none; }}
+            QScrollBar:horizontal {{ background: transparent; height: 10px; margin: 0; }}
+            QScrollBar::handle:horizontal {{ background: {scroll_handle}; border-radius: 5px; min-width: 30px; }}
+            QScrollBar::handle:horizontal:hover {{ background: {scroll_hover}; }}
+            QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{ width: 0; }}
+            QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {{ background: none; }}
         """)
 
         self.menuBar().setStyleSheet(self._menubar_stylesheet(theme))
@@ -521,6 +534,16 @@ class MainWindow(QMainWindow):
             QTreeView::item:hover {{
                 background: {hover_bg};
             }}
+            QTabWidget::pane {{ border: none; }}
+            QTabBar::tab {{
+                background: transparent;
+                color: {'#8b949e' if theme == 'dark' else '#656d76'};
+                padding: 5px 14px;
+                border: none;
+                font-size: 12px;
+            }}
+            QTabBar::tab:selected {{ color: {fg}; border-bottom: 2px solid {accent}; }}
+            QTabBar::tab:hover {{ color: {fg}; }}
         """)
 
         self._splitter.setStyleSheet(f"""

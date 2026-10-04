@@ -42,6 +42,28 @@ def read_text_auto(path: Path) -> tuple[str, str]:
     return raw.decode("utf-8", errors="replace"), "utf-8"
 
 
+def make_app_icon():
+    """Programmatic app icon: dark rounded square with a markdown-style M↓."""
+    from PyQt5.QtCore import QRectF
+    from PyQt5.QtGui import QColor, QFont, QIcon, QPainter, QPen, QPixmap
+
+    size = 128
+    pixmap = QPixmap(size, size)
+    pixmap.fill(Qt.transparent)
+    painter = QPainter(pixmap)
+    painter.setRenderHint(QPainter.Antialiasing)
+    painter.setBrush(QColor("#0d1117"))
+    painter.setPen(QPen(QColor("#30363d"), 4))
+    painter.drawRoundedRect(QRectF(6, 6, size - 12, size - 12), 24, 24)
+    painter.setFont(QFont("Segoe UI", 52, QFont.Bold))
+    painter.setPen(QColor("#c9d1d9"))
+    painter.drawText(QRectF(0, 4, size * 0.62, size - 8), Qt.AlignCenter, "M")
+    painter.setPen(QColor("#58a6ff"))
+    painter.drawText(QRectF(size * 0.52, 4, size * 0.44, size - 8), Qt.AlignCenter, "↓")
+    painter.end()
+    return QIcon(pixmap)
+
+
 # Keyboard shortcuts
 SHORTCUTS = {
     "open_file": QKeySequence.StandardKey.Open,

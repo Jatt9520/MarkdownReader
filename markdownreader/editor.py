@@ -3,11 +3,8 @@
 from pathlib import Path
 
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
-from PyQt5.QtGui import QFont, QColor, QTextCharFormat, QSyntaxHighlighter
-from PyQt5.QtWidgets import (
-    QPlainTextEdit, QWidget, QVBoxLayout, QShortcut,
-    QSizePolicy,
-)
+from PyQt5.QtGui import QFont, QColor, QTextCharFormat, QTextFormat, QSyntaxHighlighter
+from PyQt5.QtWidgets import QPlainTextEdit, QWidget, QVBoxLayout, QTextEdit, QShortcut
 
 from markdownreader.utils import SHORTCUTS
 
@@ -117,6 +114,7 @@ class MarkdownEditor(QPlainTextEdit):
         self._theme = theme
         self._highlighter.set_theme(theme)
         self._line_area.update()
+        self._highlight_current_line()
 
     def _setup_editor(self):
         font = QFont("Cascadia Code", 14)
@@ -143,7 +141,18 @@ class MarkdownEditor(QPlainTextEdit):
         self._line_area = LineNumberArea(self)
         self.blockCountChanged.connect(self._update_line_area_width)
         self.updateRequest.connect(self._update_line_area)
+        self.cursorPositionChanged.connect(self._highlight_current_line)
         self._update_line_area_width(0)
+
+    def _highlight_current_line(self):
+        """Soft full-width highlight behind the caret line."""
+        selection = QTextEdit.ExtraSelection()
+        selection.format.setBackground(
+            QColor("#161b22" if self._theme == "dark" else "#f6f8fa"))
+        selection.format.setProperty(QTextFormat.FullWidthSelection, True)
+        selection.cursor = self.textCursor()
+        selection.cursor.clearSelection()
+        self.setExtraSelections([selection])
 
     def _setup_highlighter(self):
         self._highlighter = MarkdownSyntaxHighlighter(self.document())
