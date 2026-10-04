@@ -21,6 +21,7 @@ A modern Markdown reader with live preview, dark/light themes, and PDF export �
 - **PDF Export** — Export the current document to PDF with `Ctrl+E`
 - **HTML Export** — Save the rendered page (with theme styling) as a standalone HTML file
 - **Word Count** — Live character/word count in the status bar (CJK-aware)
+- **AI Assistant (bring your own key)** — Optional; proofread, translate, summarize, explain, or continue writing via a right-click menu. Works with any OpenAI-compatible provider.
 - **Search** — Regex-capable find bar with `Ctrl+F`
 - **Recent Files** — Quick access to the last 10 opened files (File menu)
 - **Drag & Drop** — Drag markdown files onto the window to open them
@@ -36,6 +37,24 @@ A modern Markdown reader with live preview, dark/light themes, and PDF export �
 ### Supported file types
 
 `.md` `.markdown` `.mdown` `.mkd` `.mkdn` `.mdwn` `.livemd` `.qmd` `.rmd` `.txt` `.text` `.rst` — all rendered as Markdown.
+
+## AI Assistant
+
+Optional feature — the app works fully offline without it. Configure under **设置 → AI 助手**: pick a provider preset, paste your own API key, and choose a model. Any OpenAI-compatible endpoint works:
+
+| Provider | Base URL |
+|----------|----------|
+| OpenAI | `https://api.openai.com/v1` |
+| DeepSeek | `https://api.deepseek.com/v1` |
+| Kimi | `https://api.moonshot.cn/v1` |
+| 智谱 GLM | `https://open.bigmodel.cn/api/paas/v4` |
+| 通义千问 | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
+| OpenRouter | `https://openrouter.ai/api/v1` |
+| Ollama (local) | `http://localhost:11434/v1` |
+
+Right-click a selection in the editor for **纠错润色** (proofread), **翻译** (translate, auto direction), **总结所选** (summarize), **解释这段** (explain in a dialog, text untouched), **续写** (continue writing), and **自定义指令** (custom instructions).
+
+Privacy: the API key is stored locally; request content is sent only to the provider you configure — the app itself never touches your data.
 
 ## Installation
 
@@ -105,7 +124,7 @@ Pushing a `v*` tag (e.g. `v1.1.0`) triggers GitHub Actions to build the portable
 ```bash
 pip install build
 python -m build
-pip install dist/markdownreader-1.2.0-py3-none-any.whl
+pip install dist/markdownreader-1.3.0-py3-none-any.whl
 ```
 
 ## Project Structure
@@ -122,6 +141,11 @@ MarkdownReader/
 ├── requirements.txt
 ├── tests/                          # pytest suite
 └── markdownreader/
+    ├── ai/                         # Optional AI assistant (bring-your-own-key)
+    │   ├── client.py               #   OpenAI-compatible async client
+    │   ├── presets.py              #   Provider presets + prompts
+    │   ├── assistant.py            #   Context-menu actions controller
+    │   └── settings_dialog.py
     ├── __init__.py                 # Version
     ├── __main__.py
     ├── main.py                     # Entry point with crash handler

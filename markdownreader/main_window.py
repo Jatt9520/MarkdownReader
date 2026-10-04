@@ -662,6 +662,7 @@ class MainWindow(QMainWindow):
             "<li>任务列表勾选框</li>"
             "<li>暗色/亮色主题切换</li>"
             "<li>最近打开的文件</li>"
+            "<li>AI 助手（自带 Key，可选）</li>"
             "<li>导出 PDF / HTML</li>"
             "<li>字数统计</li>"
             "<li>正则表达式搜索</li>"
