@@ -23,7 +23,7 @@
 - **PDF 导出** — `Ctrl+E` 导出当前文档
 - **HTML 导出** — 把渲染结果（带主题样式）存为独立 HTML 文件
 - **字数统计** — 状态栏实时显示字符/词数（中英文混排分别计数）
-- **AI 助手（自带 Key）** — 可选功能；右键纠错润色、翻译、总结、解释、续写。任何 OpenAI 兼容服务商均可
+- **AI 助手（需自备 API Key）** — 可选功能；右键纠错润色、翻译、总结、解释、续写。任何 OpenAI 兼容服务商均可
 - **搜索** — `Ctrl+F` 呼出支持正则的查找栏
 - **最近打开** — 文件菜单快速访问最近 10 个文件
 - **拖拽打开** — 把 Markdown 文件拖进窗口即可打开
@@ -143,7 +143,7 @@ MarkdownReader/
 ├── requirements.txt
 ├── tests/                          # pytest 测试
 └── markdownreader/
-    ├── ai/                         # 可选 AI 助手（自带 Key）
+    ├── ai/                         # 可选 AI 助手（需自备 Key）
     │   ├── client.py               #   OpenAI 兼容异步客户端
     │   ├── presets.py              #   服务商预设 + 提示词
     │   ├── assistant.py            #   右键菜单动作控制器

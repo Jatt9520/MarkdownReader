@@ -253,7 +253,7 @@ class MainWindow(QMainWindow):
         # 设置菜单
         settings_menu = menubar.addMenu("设置(&S)")
         self._action_ai_settings = QAction("AI 助手(&A)...", self)
-        self._action_ai_settings.setStatusTip("配置 AI 服务商（自带 API Key）")
+        self._action_ai_settings.setStatusTip("配置 AI 服务商（使用你自己的 API Key）")
         self._action_ai_settings.triggered.connect(self._open_ai_settings)
         settings_menu.addAction(self._action_ai_settings)
 
@@ -662,7 +662,7 @@ class MainWindow(QMainWindow):
             "<li>任务列表勾选框</li>"
             "<li>暗色/亮色主题切换</li>"
             "<li>最近打开的文件</li>"
-            "<li>AI 助手（自带 Key，可选）</li>"
+            "<li>AI 助手（需自备 API Key，可选）</li>"
             "<li>导出 PDF / HTML</li>"
             "<li>字数统计</li>"
             "<li>正则表达式搜索</li>"
