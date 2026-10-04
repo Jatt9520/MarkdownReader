@@ -72,14 +72,10 @@ class MarkdownPreview(QWidget):
     def get_html(self) -> str:
         return self._current_html
 
-    def print_to_pdf(self, output_path: str):
-        """Export current view to PDF via QPrinter."""
-        from PyQt5.QtPrintSupport import QPrinter
-        printer = QPrinter(QPrinter.HighResolution)
-        printer.setOutputFormat(QPrinter.PdfFormat)
-        printer.setOutputFileName(output_path)
-        printer.setPageSize(QPrinter.A4)
-        self._text_browser.document().print_(printer)
+    def export_pdf(self, parent=None):
+        """Export the current document to PDF via a save dialog."""
+        from markdownreader.pdf_export import export_to_pdf
+        return export_to_pdf(self._text_browser, parent)
 
     def zoom_in(self):
         self._zoom_level = min(self._zoom_level + 1, 10)

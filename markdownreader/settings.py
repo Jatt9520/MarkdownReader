@@ -1,8 +1,5 @@
 """Persistent application settings (theme, font size, window state)."""
 
-import json
-from pathlib import Path
-
 from PyQt5.QtCore import QSettings
 
 

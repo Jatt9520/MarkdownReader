@@ -4,9 +4,7 @@ from pathlib import Path
 
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QFont, QColor, QTextCharFormat, QTextFormat, QSyntaxHighlighter
-from PyQt5.QtWidgets import QPlainTextEdit, QWidget, QVBoxLayout, QTextEdit, QShortcut
-
-from markdownreader.utils import SHORTCUTS
+from PyQt5.QtWidgets import QPlainTextEdit, QWidget, QTextEdit
 
 
 class LineNumberArea(QWidget):

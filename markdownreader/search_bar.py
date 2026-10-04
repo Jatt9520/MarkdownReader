@@ -1,10 +1,9 @@
 """Search and replace bar widget."""
 
-from PyQt5.QtCore import Qt, pyqtSignal, QRegExp
-from PyQt5.QtGui import QTextDocument, QTextCursor, QColor
+from PyQt5.QtGui import QTextDocument, QTextCursor
 from PyQt5.QtWidgets import (
     QWidget, QHBoxLayout, QLineEdit, QToolButton, QLabel, QCheckBox,
-    QVBoxLayout, QSizePolicy,
+    QVBoxLayout,
 )
 
 
@@ -48,7 +47,7 @@ class SearchBar(QWidget):
         """)
         row.addWidget(self._search_input)
 
-        self._match_label = QLabel("0 results")
+        self._match_label = QLabel("0 个结果")
         self._match_label.setStyleSheet("color: #8b949e; font-size: 12px; min-width: 70px;")
         row.addWidget(self._match_label)
 
@@ -129,8 +128,7 @@ class SearchBar(QWidget):
     def _search(self, direction: int):
         text = self._search_input.text()
         if not text:
-            self._clear_highlights()
-            self._match_label.setText("0 results")
+            self._match_label.setText("0 个结果")
             return
 
         flags = QTextDocument.FindFlags()
@@ -139,18 +137,26 @@ class SearchBar(QWidget):
         if self._regex_cb.isChecked():
             flags |= QTextDocument.FindRegularExpression
 
-        # Search forward or backward
         if direction > 0:
-            found = self._editor.find(text, flags)
+            # Wrap around: restart from the top when the end is reached
+            if not self._editor.find(text, flags):
+                cursor = self._editor.textCursor()
+                cursor.movePosition(QTextCursor.Start)
+                self._editor.setTextCursor(cursor)
+                self._editor.find(text, flags)
         elif direction < 0:
             flags |= QTextDocument.FindBackward
-            found = self._editor.find(text, flags)
+            if not self._editor.find(text, flags):
+                cursor = self._editor.textCursor()
+                cursor.movePosition(QTextCursor.End)
+                self._editor.setTextCursor(cursor)
+                self._editor.find(text, flags)
         else:
-            # Initial search — move to start and find all
+            # Initial search — jump to the first match from the top
             cursor = self._editor.textCursor()
             cursor.movePosition(QTextCursor.Start)
             self._editor.setTextCursor(cursor)
-            found = self._editor.find(text, flags)
+            self._editor.find(text, flags)
 
         # Count all matches
         self._count_matches(text, flags)
@@ -165,9 +171,46 @@ class SearchBar(QWidget):
                 break
             count += 1
 
-        self._match_label.setText(f"{count} result{'s' if count != 1 else ''}")
+        self._match_label.setText(f"{count} 个结果")
 
     def _clear_highlights(self):
         cursor = self._editor.textCursor()
         cursor.clearSelection()
         self._editor.setTextCursor(cursor)
+
+    def apply_theme(self, theme: str):
+        """Restyle the bar for the active theme."""
+        if theme == "dark":
+            bar_bg, border, fg, muted = "#161b22", "#21262d", "#c9d1d9", "#8b949e"
+            input_bg, input_border, accent = "#0d1117", "#30363d", "#58a6ff"
+            btn_bg, btn_hover, btn_pressed = "#21262d", "#30363d", "#484f58"
+        else:
+            bar_bg, border, fg, muted = "#f6f8fa", "#d0d7de", "#1f2328", "#656d76"
+            input_bg, input_border, accent = "#ffffff", "#d0d7de", "#0969da"
+            btn_bg, btn_hover, btn_pressed = "#ffffff", "#eaeef2", "#d0d7de"
+
+        self.setStyleSheet(
+            f"background: {bar_bg}; border-bottom: 1px solid {border};")
+        self._search_input.setStyleSheet(f"""
+            QLineEdit {{
+                background: {input_bg}; color: {fg};
+                border: 1px solid {input_border}; border-radius: 6px;
+                padding: 5px 10px; font-size: 13px;
+            }}
+            QLineEdit:focus {{ border-color: {accent}; }}
+        """)
+        self._match_label.setStyleSheet(f"color: {muted}; font-size: 12px; min-width: 70px;")
+        btn_style = f"""
+            QToolButton {{
+                border: 1px solid {input_border}; border-radius: 4px;
+                color: {fg}; background: {btn_bg};
+                padding: 4px 10px; font-size: 12px;
+            }}
+            QToolButton:hover {{ background: {btn_hover}; }}
+            QToolButton:pressed {{ background: {btn_pressed}; }}
+        """
+        for button in (self._prev_btn, self._next_btn, self._close_btn):
+            button.setStyleSheet(btn_style)
+        opt_style = f"color: {muted}; font-size: 12px; padding: 2px;"
+        self._case_cb.setStyleSheet(opt_style)
+        self._regex_cb.setStyleSheet(opt_style)

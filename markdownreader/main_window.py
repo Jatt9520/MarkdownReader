@@ -1,14 +1,13 @@
 """Main application window — assembles all panels and manages state."""
 
-import sys
 from pathlib import Path
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence, QDragEnterEvent, QDropEvent
 from PyQt5.QtWidgets import (
-    QMainWindow, QSplitter, QAction, QMenuBar, QStatusBar,
-    QToolBar, QLabel, QFileDialog, QMessageBox, QWidget, QVBoxLayout,
-    QApplication, QSizePolicy, QShortcut,
+    QMainWindow, QSplitter, QAction, QStatusBar,
+    QLabel, QFileDialog, QMessageBox, QWidget, QVBoxLayout,
+    QShortcut,
 )
 
 from markdownreader import __version__
@@ -16,7 +15,6 @@ from markdownreader.editor import MarkdownEditor
 from markdownreader.preview import MarkdownPreview
 from markdownreader.sidebar import Sidebar
 from markdownreader.search_bar import SearchBar
-from markdownreader.pdf_export import export_to_pdf
 from markdownreader.settings import Settings
 from markdownreader.utils import SHORTCUTS, MARKDOWN_EXTENSIONS, is_markdown_file, read_text_auto
 
@@ -143,6 +141,17 @@ class MainWindow(QMainWindow):
         self._action_save_as.setShortcut(SHORTCUTS["save_as"])
         self._action_save_as.triggered.connect(self._save_file_as)
         file_menu.addAction(self._action_save_as)
+
+        self._action_close_file = QAction("关闭文件(&C)", self)
+        self._action_close_file.setShortcut(SHORTCUTS["close_file"])
+        self._action_close_file.triggered.connect(self._close_file)
+        file_menu.addAction(self._action_close_file)
+
+        self._action_reload = QAction("重新加载(&R)", self)
+        self._action_reload.setShortcut(SHORTCUTS["reload"])
+        self._action_reload.setStatusTip("从磁盘重新读取当前文件")
+        self._action_reload.triggered.connect(self._reload_file)
+        file_menu.addAction(self._action_reload)
 
         file_menu.addSeparator()
 
@@ -341,10 +350,25 @@ class MainWindow(QMainWindow):
             self._preview.set_base_dir(self._current_file.parent)
             self._save_file()
             self._update_title()
+            self._sidebar.set_root(self._current_file.parent)
+            self._settings.add_recent(str(self._current_file))
+            self._update_recent_menu()
+
+    def _close_file(self):
+        """Close the current document and return to the empty state."""
+        self._new_file()
+
+    def _reload_file(self):
+        """Re-read the current file from disk, discarding unsaved edits."""
+        if self._current_file is None or not self._current_file.is_file():
+            self._statusbar.showMessage("没有可重新加载的文件", 3000)
+            return
+        self.open_file(self._current_file)
+        self._statusbar.showMessage(f"已重新加载 {self._current_file.name}", 3000)
 
     def _export_pdf(self):
         if self._preview.get_html():
-            export_to_pdf(self._preview._text_browser, self)
+            self._preview.export_pdf(self)
         else:
             QMessageBox.information(self, "导出", "没有可导出的内容，请先打开 Markdown 文件。")
 
@@ -493,6 +517,7 @@ class MainWindow(QMainWindow):
         """)
 
         self.menuBar().setStyleSheet(self._menubar_stylesheet(theme))
+        self._search_bar.apply_theme(theme)
         self._statusbar.setStyleSheet(f"""
             QStatusBar {{
                 background: {sidebar_bg};
@@ -566,7 +591,7 @@ class MainWindow(QMainWindow):
 
     def _zoom_reset(self):
         font = self._editor.font()
-        font.setPointSize(14)
+        font.setPointSize(self._settings.editor_font_size)
         self._editor.setFont(font)
         self._preview.zoom_reset()
 
